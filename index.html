@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Carga de archivos</title>
+  </head>
+  <style>
+    /* Estilos para el formulario */
+    body {
+      background-color: #000;
+      color: #FFF;
+      font-family: 'Arial', sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      background-color: #4B5162;
+      border: none;
+      color: #FFF;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Estilos para la tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #4B5162;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2B303B;
+      color: #FFF;
+    }
+
+    tr:nth-child(even) {
+      background-color: #2F3440;
+    }
+
+    tr:hover {
+      background-color: #3E4451;
+    }
+    #file-info-error{
+        color: red;
+    }
+  </style>
+  <body>
+    <h1>Carga de archivos</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+      <input type="file" name="files" multiple />
+      <input type="submit" value="Cargar" />
+    </form>
+    <div id="file-info-error"></div>
+    <div id="file-details-table"></div>
+<script>
+      // Script para mostrar los detalles del archivo cargado
+      const form = document.querySelector('form');
+  
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+  
+        const formData = new FormData(form);
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+  
+        if (response.ok) {
+
+            const fileInfo = await response.json();
+
+
+                const tableContainer = document.getElementById("file-details-table");
+
+                const table = document.createElement("table");
+
+                // Crea la cabecera de la tabla
+                const headerRow = document.createElement("tr");
+
+                const headerFileName = document.createElement("th");
+                headerFileName.textContent = "Nombre";
+                headerRow.appendChild(headerFileName);
+
+                const headerFileNameOriginal = document.createElement("th");
+                headerFileNameOriginal.textContent = "Nombre original";
+                headerRow.appendChild(headerFileNameOriginal);
+
+                const headerFileSize = document.createElement("th");
+                headerFileSize.textContent = "Tamaño";
+                headerRow.appendChild(headerFileSize);
+
+                const headerMimeType = document.createElement("th");
+                headerMimeType.textContent = "Tipo MIME";
+                headerRow.appendChild(headerMimeType);
+
+                table.appendChild(headerRow);
+
+            for (let i = 0; i < fileInfo.files.length; i++) {
+                
+
+                // Itera sobre los archivos y crea las filas de la tabla
+                const file = fileInfo.files[i];
+                
+                const row = document.createElement("tr");
+
+                const fileNameCell = document.createElement("td");
+                fileNameCell.textContent = file.fileName;
+                row.appendChild(fileNameCell);
+
+                const fileNameOriginalCell = document.createElement("td");
+                fileNameOriginalCell.textContent = file.originalName;
+                row.appendChild(fileNameOriginalCell);
+
+                const fileSizeCell = document.createElement("td");
+                fileSizeCell.textContent = file.size + " bytes";
+                row.appendChild(fileSizeCell);
+
+                const mimeTypeCell = document.createElement("td");
+                mimeTypeCell.textContent = file.mimeType;
+                row.appendChild(mimeTypeCell);
+
+                table.appendChild(row);
+                ;
+
+                tableContainer.appendChild(table);
+
+            }
+        } else {
+            const fileInfoDivError = document.querySelector('#file-info-error');
+            fileInfoDivError.innerHTML = 'Error al cargar el archivo (Tipo de archivo no permitido)';
+        }
+      });
+    </script>
+    
+    
+  </body>
+  
+</html>
